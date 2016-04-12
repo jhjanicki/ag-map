@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    
+    <!-- Google Fonts Dosis -->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Dosis">
+    
+    <!-- Google Fonts Open Sans -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic' rel='stylesheet' type='text/css'>
+    
+    <!-- Leafet CSS -->
+    <link rel="stylesheet" href="js/libraries/leaflet/leaflet.css" type="text/css" />
+    
+    <!-- Jquery UI autocomplete -->
+    <link rel="stylesheet" href="js/libraries/jquery-ui-autocomplete/jquery-ui.min.css" />
+    
+   <style>
+   
+   html, body{
+   	font-family: 'Open Sans', sans-serif;
+   	width:100%;
+   	margin:0;
+   	padding:0;
+   	overflow-x:hidden;
+   }
+   
+   #top{
+		width:100%;
+		height:50px;
+		background-color:black;
+		color:white;
+		margin-left:0px; /* why? */
+		margin-right:0px;
+	}
+   	#mapContainer{
+   		width:100%;
+   		height:750px;
+   		margin-left:0px; /* why? */
+   	}
+
+	.button{
+		margin-bottom: 10px;
+		margin-top: 10px;
+		margin-left: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-left: 14px;
+		padding-right: 14px;
+		text-decoration: none;
+		font-weight: bold;
+		font-size: 14px;
+		line-height: 1.5;
+		text-transform: uppercase;
+		background-color: none;
+		color: black;
+		border: solid 1px black;
+		-webkit-transition: all 500ms ease;
+		-moz-transition: all 500ms ease;
+		-ms-transition: all 500ms ease;
+		transition: all 500ms ease;
+	}
+
+	.button:hover{
+		background-color: black;
+		color:white;
+		text-decoration:none;
+		cursor: pointer;
+	}
+
+	.button:active{
+		color:#2c7fb8;
+		text-decoration:none;
+	}
+	
+	.active-button{
+		color:white;
+		background-color:#2c7fb8;
+		border: solid 1px #2c7fb8;
+	}
+	
+	.active-button:hover{
+		background-color: black;
+		color:white;
+		border: solid 1px black;
+		text-decoration:none;
+		cursor: pointer;
+	
+	}
+	
+	.inline{
+		display:inline;
+	}
+	
+	.bubble{
+		fill:#979c9c;
+		stroke: #343642;
+		stroke-width:1px;
+		fill-opacity:0.4;
+	}
+	
+	.legendSize{
+		fill:#979c9c;
+		stroke: #343642;
+		stroke-width:1px;
+		fill-opacity:0.4;
+	}
+	
+	.legendSize text{
+		fill:black;
+		fill-opacity:1;
+		stroke:none;
+	}
+	
+	#title{
+		margin:0px;
+		width:500px;
+		padding-top:10px;
+		padding-left:20px;
+	}
+	
+	
+	.unselected-img{
+		opacity:0.4;
+	}
+	
+	/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+	.show {
+		display:block;
+	}
+	
+	.none{
+		display:none;
+	}
+	
+	.col-md-9,.col-md-3, .col-md-12, .col-md-10,.col-md-2{
+		padding-left:0px;
+		padding-right:0px;
+		margin-left:0px;
+		margin-right:0px;
+		
+	}
+	
+	
+	#new-dropdown{
+      	position:absolute;
+		top:64px;
+		right:70px;
+    	z-index: 999;
+    	background-color: #F8F8F8;
+      	
+      }
+      
+      .new-panel{
+      	position:relative;
+		display: block;
+		width: 210px;
+		height: 60px;
+		border-top: 1px solid #FFF;
+		border-bottom: 1px solid #DDD;
+		cursor: pointer;
+		background:white;
+		z-index:999;
+      
+      }
+      
+      .top-menu-title{
+		text-transform: uppercase;
+		font-family: "AvenirNextCondensed-Medium", "AvenirNextLTW01-MediumC 721311", "Arial Narrow", Verdana, sans-serif;
+		font-size: 20px;
+		left: 5px;
+		text-align:left;
+		padding-left:10px;
+		padding-top:14px;
+      }
+      
+      .top-menu-title p{
+      	color:black;
+      	text-align:left;
+      }
+      
+      .text{
+		text-transform: uppercase;
+		font-family: "AvenirNextCondensed-Medium", "AvenirNextLTW01-MediumC 721311", "Arial Narrow", Verdana, sans-serif;
+		font-size: 16px;
+		left: 5px;
+      }
+      
+      .text p{
+      	color:black;
+      	margin-top:10px;
+      	margin-left:10px;
+      }
+      
+       .text p:hover{
+        cursor:pointer;
+        color:#BBB;
+        transition: all 0.5S ease;
+       }
+      
+      .panel .top{
+      	height: 60px;
+      }
+      
+      .panel .details .text {
+		margin: 20px auto 20px;
+		font-size: 18px;
+		text-align: center;
+		color: #222;
+    }
+    
+    .details{
+    	width: 210px;
+    }
+    
+    .toggle-button {
+		position: absolute;
+		right: 10px;
+		top: 12px;
+		font-size: 22px;
+		color: white;
+		font-family: "Pictos";
+		border-radius: 50%;
+		width:30px;
+		height:30px;
+		padding-left:8px;
+		background-color:#BBB;
+	}
+	
+	.toggle-button:hover{
+		background-color:black;
+		transition: all 0.5s ease;
+	}
+	
+	.minus {
+    	padding-left:3px;
+	}
+	
+
+
+	/* bootstrap */
+	.col-lg-9,.col-lg-3,.col-lg-12,.col-md-12, .col-md-9,.col-md-6,.col-md-3{
+		margin-left:0px;
+		margin-right:0px;
+		padding-left:0px;
+		padding-right:0px;
+	}
+	
+	.row{
+		width:100%;
+		margin-left:0px;
+		margin-right:0px;
+		
+	}
+	
+	#accordion{
+		padding-left:5px;
+		padding-right:5px;
+		max-height:750px;
+	}
+	
+	#legendContainer h4{
+		text-align: left;
+		margin-left:20px;
+		margin-bottom:-10px;
+		font-weight:300;
+	}
+	
+	#container {
+	   min-height:100%;
+	   position:relative;
+	}
+	
+	#body {
+	   padding-bottom:60px;   /* Height of the footer */
+	}
+	#footer {
+	   position:absolute;
+	   bottom:0;
+	   width:100%;
+	   height:60px;   /* Height of the footer */
+	   background:black;
+	}
+	
+	.infolabel{
+		position:absolute;
+		top:100px; /* take out */
+		left:50px; /* take out */
+		min-width:220px;
+		max-width:400px;
+		max-height:106px;
+		text-align: center;
+		padding:10px;
+		padding-top:4px;
+		/* border-radius: 10px; */
+	}
+	
+
+	.infolabel p{
+		font-size:14px;
+		font-weight:300;
+		text-align:left;
+	}
+	
+	.infolabel h4{
+		font-size:20px;
+		font-weight:400;
+		text-align:center;
+		color:white;
+		background-color:black; 
+		padding:4px;
+		border-radius:4px;
+	}
+	
+	.infolabel h5{
+		font-size:14px;
+		font-weight:300;
+		text-align:left;
+	}
+
+	
+	
+	@media all and (max-width: 1400px){
+		#species-container img{
+			width:90px;
+			height:90px;
+			-webkit-clip-path: circle(45px at center);
+	}
+	@media all and (max-width: 1290px){
+		#species-container img{
+			width:80px;
+			height:80px;
+			-webkit-clip-path: circle(40px at center);
+	}
+	@media all and (max-width: 1190px){
+		#species-container img{
+			width:70px;
+			height:70px;
+			-webkit-clip-path: circle(35px at center);
+		}
+		#species-container{
+			margin-left:80px;
+		}
+	}
+	@media all and (max-width: 1050px){
+		#species-container img{
+			width:64px;
+			height:64px;
+			-webkit-clip-path: circle(32px at center);
+		}
+		
+	}
+	
+	@media all and (max-width: 992px){
+		#species-container img{
+			width:80px;
+			height:80px;
+			-webkit-clip-path: circle(40px at center);
+		}
+		
+	}
+	
+
+      
+    
+	
+   </style>
+
+</head>
+<body>
+<div id="container">
+<div id="body">
+   
+   
+	<div class="row" id="top">
+		<div class="col-md-12"> 
+			   <h3 id="title"> Global agriculture and development </h3>
+		</div>
+	</div>
+
+
+
+	<div class="row">
+		<div class="col-md-3">
+ 
+			 <div class="panel-group" id="accordion">
+			  <div class="panel panel-default" id="panel1">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" data-plant="Banana2011" id="banana">
+					  Banana
+					</a>
+				  </h4>
+				</div>
+				<div id="collapseOne" class="panel-collapse collapse in">
+				  <div class="panel-body">
+					Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+				  </div>
+				</div>
+			  </div>
+			  <div class="panel panel-default" id="panel2">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" data-plant="Rice2011" id="rice">
+					  Rice
+					</a>
+				  </h4>
+				</div>
+				<div id="collapseTwo" class="panel-collapse collapse">
+				  <div class="panel-body">
+					Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+				  </div>
+				</div>
+			  </div>
+			  <div class="panel panel-default" id="panel3">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" data-plant="Cassava2010" id="cassava">
+					  Cassava
+					</a>
+				  </h4>
+				</div>
+				<div id="collapseThree" class="panel-collapse collapse">
+				  <div class="panel-body">
+					Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+				  </div>
+				</div>
+			  </div>
+			  <div class="panel panel-default" id="panel4">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" data-plant="Plantain2010" id="plantain">
+					  Plantain
+					</a>
+				  </h4>
+				</div>
+				<div id="collapseFour" class="panel-collapse collapse">
+				  <div class="panel-body">
+					Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+				  </div>
+				</div>
+			  </div>
+			  <div class="panel panel-default" id="panel5">
+				<div class="panel-heading">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" data-plant="Wheat2011" id="wheat">
+					  Wheat
+					</a>
+				  </h4>
+				</div>
+				<div id="collapseFive" class="panel-collapse collapse">
+				  <div class="panel-body">
+					Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+				  </div>
+				</div>
+			  </div>
+			</div>
+		
+			<div id="legendContainer">
+			 <h4 id="legendText"> HDI index </h4>
+			 <div id="linearLegend"></div>
+			 <h4 id="plantText"> Supply (g/day) </h4>
+			 <div id="plantLegend"></div>
+			</div>
+
+
+		</div>    
+		<div class="col-md-9">    
+			
+			<div id="mapContainer">
+			</div>
+
+   
+		</div>
+	
+	
+	</div>
+
+
+</div> <!-- end body -->
+
+
+    
+    
+    <!-- jQuery -->
+    <script src="js/libraries/jquery.js"></script>
+
+	 <!-- underscore -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/libraries/bootstrap.min.js"></script>
+    
+    <!-- D3 -->
+    
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    
+    <!-- D3.geo -->
+    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+    
+     <!-- D3 legend -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.10.0/d3-legend.js'></script>
+    
+	<!-- Leaflet -->
+	<script src="js/libraries/leaflet/leaflet.js" type="text/javascript"></script>
+	
+	
+	<!--  project files -->
+	<script src="js/plant.js" type="text/javascript"></script>
+	
+	
+<div id="footer"></div>
+</div>	<!-- end container -->
+
+
+</body>
+
+</html>
