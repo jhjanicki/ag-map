@@ -8,6 +8,8 @@
 	
 	var countries;
 	
+	var countries2; //for centroid
+	
 	var plant;
 	
 	var plantData;
@@ -39,7 +41,8 @@
 
 	var map = new L.Map("mapContainer", {
 				center: [15.5, 65.7], 
-				zoom: 3
+				zoom: 3,
+				minZoom:2
 			});
 		
 	var tile1 = L.tileLayer('http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png', {
@@ -83,15 +86,15 @@
 	function loadPolygons(){
 
 		
-		 d3.json("data/countries2.geojson", function(error,adm0){
-			  console.log(adm0.features);
+		 d3.json("data/countries2_old.geojson", function(error,adm0){
+			  //console.log(adm0.features);
 			
 			
 				
-				//append pangolin data to associated country geojson
+				//append plant data to associated country geojson
 				d3.json('data/plantData.json',function(data){
-					console.log(data);
-					console.log(adm0.features);
+					//console.log(data);
+					//console.log(adm0.features);
 
 		  
 		  	  		countries = adm0;
@@ -113,8 +116,8 @@
 							
 						});
 					});
-					console.log('plantData');
-					console.log(plantData);
+					//console.log('plantData');
+					//console.log(plantData);
 					
 					
 					var recolorMap = colorScale(plantData);
@@ -152,6 +155,9 @@
 						 d3.select(this).attr('fill',color);		   	
 					});
 
+
+			
+
 					
 				drawLegend(plantData);
 					
@@ -176,6 +182,39 @@
 				 //drawPangolinRange();
 		
 		}); // end adm0
+		
+			
+							
+				d3.json("data/countries2.geojson", function(error,adm0){
+			  //console.log(adm0.features);
+			
+			
+				
+				//append plant data to associated country geojson
+				d3.json('data/plantData.json',function(data){
+					//console.log(data);
+					//console.log(adm0.features);
+
+		  
+		  	  		countries2 = adm0;
+					
+					
+					adm0.features.forEach(function(d1){
+						data.forEach(function(d2){
+							if (d1.properties.name == d2.Country){
+								d1.properties['banana']=d2.Banana2011;
+								d1.properties['cassava']=d2.Cassava2010;
+								d1.properties['plantain']=d2.Plantain2010;
+								d1.properties['rice']=d2.Rice2011;
+								d1.properties['wheat']=d2.Wheat2011;
+								d1.properties['HDI']=d2.HDI2014;
+								d1.properties['HDIrank']=d2.HDIRanking;
+							}
+							
+						});
+					});
+				});
+			});
 	
 	
 		
@@ -199,17 +238,43 @@
 		//console.log(max);
 		//console.log(min);
 		
-		var radius = d3.scale.sqrt()
+		
+		var radius;
+		 if(map.getZoom() === 2){
+		 	radius = d3.scale.sqrt()
+		.domain([min,max])
+		.range([0, 20]);
+		 
+		 }else{
+		 	 radius = d3.scale.sqrt()
 		.domain([min,max])
 		.range([0, 30]);
+		 }
 		
-		console.log(countries);
+	
+		
+		//console.log(countries);
 		 countryPath.append("g")
     		.attr("class", "bubble")
   			.selectAll("circle")
-    		.data(countries.features)
+    		.data(countries2.features)
   			.enter().append("circle")
-    		.attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+    		.attr("transform", function(d) { 
+    			// if(d.properties.name == 'United States'){
+//     				console.log(d.geometry.coordinates);
+//     				d.geometry.type = 'Polygon';
+//     				d.geometry.coordinates = d.geometry.coordinates[5];
+//     				console.log('peegy');
+//     				console.log(d.geometry.coordinates);
+//     				return "translate(" + path.centroid(d) + ")"; 
+//     			}
+				
+    		
+    		if(d.properties.name == 'Canada'){
+    			console.log(d.geometry.coordinates);
+    		}
+    			return "translate(" + path.centroid(d) + ")"; 
+    		})
    			.attr("r", function(d) { 
    		 				if(radius(d.properties[plantid])>0){
    		 					return radius(d.properties[plantid]);
@@ -245,7 +310,14 @@
 	function drawPlantLegend(min,max){
 		d3.select('#plantLegend svg').remove();
 		
-		var linearSize = d3.scale.linear().domain([min,max]).range([0, 30]);
+		var linearSize;
+		
+		if(map.getZoom() === 2){
+			linearSize = d3.scale.linear().domain([min,max]).range([0, 20]);
+		}else{
+			linearSize = d3.scale.linear().domain([min,max]).range([0, 30]);
+		}
+		
 
 		var legend = d3.select('#plantLegend')
 				.append('svg');
@@ -319,7 +391,7 @@
 	
 	function choropleth(d, recolorMap){
 		//Get data value
-		console.log(d);
+		//console.log(d);
 		var value = d.properties.HDI;
 		//If value exists, assign it a color; otherwise assign gray
 		if (value) {
@@ -340,7 +412,7 @@
 	
 	function drawLegend(data){
 		var max = d3.max(data, function(d) { return d.HDI2014; })
-		console.log(max);
+		//console.log(max);
 		var min = d3.min(data, function(d) { return d.HDI2014; })
 	
 		d3.select('#linearLegend svg').remove();
@@ -369,11 +441,11 @@
 		
 		
 		function drawInfolabel(d,i,plantid){
-		console.log('peegy');
-		console.log(d);
+		//console.log('peegy');
+		//console.log(d);
 		//console.log(d);
 		
-		console.log("drawInfolabel");
+		//console.log("drawInfolabel");
 	
 		var labelHTML = "<h4>"+d.properties[plantid]+"</h4><b><p>"+plantid+"</b>&nbsp;&nbsp;&nbsp;&nbsp;<i>"+d.properties.name+"</i></p>"
 		                +"<h5> Human Development Index: "+d.properties.HDI+"</h5>";
