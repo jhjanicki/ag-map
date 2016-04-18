@@ -270,7 +270,7 @@
 //     			}
 				
     		
-    		if(d.properties.name == 'Canada'){
+    		if(d.properties.name == 'Fiji'){
     			console.log(d.geometry.coordinates);
     		}
     			return "translate(" + path.centroid(d) + ")"; 
